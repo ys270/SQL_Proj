@@ -1,0 +1,63 @@
+import os
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mydb.settings")
+
+import django
+django.setup()
+
+def delete_everything(self):
+    Reporter.objects.all().delete()
+
+def build_state():
+    from query.models import State
+    f = open('state.txt')
+    StateList = []
+    for line in f:
+        state_id,name = line.split(' ')
+        state = State(name = name[:-1])
+        StateList.append(state)
+    f.close()
+    State.objects.bulk_create(StateList)
+
+def build_color():
+    from query.models import Color
+    f = open('color.txt')
+    ColorList = []
+    for line in f:
+        color_id,name = line.split(' ')
+        color = Color(name = name[:-1])
+        ColorList.append(color)
+    f.close()
+    Color.objects.bulk_create(ColorList)
+
+def build_team():
+    from query.models import Team,State,Color
+    f = open('team.txt')
+    TeamList = []
+    for line in f:
+        team_id,name,state_id,color_id,wins,losses = line.split(' ')
+        team = Team(name = name,state_id=State.objects.get(state_id =state_id),color_id = Color.objects.get(color_id = color_id),wins=wins,losses=losses)
+        TeamList.append(team)
+    f.close()
+    Team.objects.bulk_create(TeamList)
+
+def build_player():
+    from query.models import Team, Player
+    f = open('player.txt')
+    PlayerList = []
+    for line in f:
+        player_id,team_id,uniform_num,first_name,last_name,mpg,ppg,rpg,apg,spg,bpg = line.split(' ')
+        player = Player(team_id=Team.objects.get(team_id=team_id),uniform_num=uniform_num,first_name=first_name,last_name=last_name,mpg=mpg,ppg=ppg,rpg=rpg,apg=apg,spg=spg,bpg=bpg)
+        PlayerList.append(player)
+    f.close()
+    Player.objects.bulk_create(PlayerList)
+    
+    
+def main():
+    delete_everything()
+    build_state()
+    build_color()
+    build_team()
+    build_player()
+
+if __name__ == "__main__":
+    main()
